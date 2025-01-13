@@ -22,6 +22,23 @@ const MapScreen = ({ navigation }: { navigation: any }) => {
     const [comments, setComments] = useState('');
     const [photo, setPhoto] = useState<string | null>(null);
 
+    // Village Boundaries
+    const bounds = {
+        north: 35.4250, // North latitude
+        south: 35.4190, // South latitude
+        east: 24.1450, // East longitude
+        west: 24.1380, // West longitude
+    };
+
+    const isWithinBounds = (latitude: number, longitude: number) => {
+        return (
+            latitude >= bounds.south &&
+            latitude <= bounds.north &&
+            longitude >= bounds.west &&
+            longitude <= bounds.east
+        );
+    };
+
     useEffect(() => {
         const getCurrentLocation = async () => {
             try {
@@ -37,10 +54,19 @@ const MapScreen = ({ navigation }: { navigation: any }) => {
                     longitude: currentLocation.coords.longitude,
                 };
 
+                // Validate if the location is within Neo Chorio boundaries
+                if (!isWithinBounds(coords.latitude, coords.longitude)) {
+                    Alert.alert(
+                        t('error'),
+                        t('outsideVillageError')
+                    );
+                    return;
+                }
+
                 setLocation(coords);
                 setRegion({
                     ...coords,
-                    latitudeDelta: 0.005, // Closer zoom
+                    latitudeDelta: 0.005,
                     longitudeDelta: 0.005,
                 });
             } catch (error) {
@@ -52,35 +78,77 @@ const MapScreen = ({ navigation }: { navigation: any }) => {
         getCurrentLocation();
     }, []);
 
+    const handleLocationSelect = (coordinate: LatLng) => {
+        if (!isWithinBounds(coordinate.latitude, coordinate.longitude)) {
+            Alert.alert(
+                t('error'),
+                t('outsideVillageError')
+            );
+            return;
+        }
+        setLocation(coordinate);
+    };
+
     const pickImage = async () => {
         const result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: false, // Disable cropping
-            quality: 0.5, // Reduce image size
+            allowsEditing: false,
+            quality: 0.5,
         });
         if (!result.canceled) {
-            setPhoto(result.assets[0].uri); // Save the selected photo URI
+            setPhoto(result.assets[0].uri);
         }
     };
 
     const handleRemovePhoto = () => {
-        setPhoto(null); // Clear the selected photo
+        setPhoto(null);
     };
 
     const handleSubmit = async () => {
-        if (!location || !name || !phone || !comments || !photo) {
-            Alert.alert(t('error'), t('allFieldsRequired'));
+        const nameRegex = /^[A-Za-zΑ-Ωα-ωΆ-Ώά-ώ\s]+$/; // Regex for Latin, Greek letters, and spaces
+        const phoneRegex = /^[0-9]+$/; // Regex for numeric values only
+    
+        if (!location) {
+            Alert.alert(t('error'), t('pleaseSelectLocation'));
             return;
         }
-
+        if (!name.trim()) {
+            Alert.alert(t('error'), t('pleaseEnterName'));
+            return;
+        }
+        if (!nameRegex.test(name)) {
+            Alert.alert(t('error'), t('nameInvalid')); // Name must contain only letters
+            return;
+        }
+        if (name.length < 5) {
+            Alert.alert(t('error'), t('nameTooShort')); // Name must be at least 5 characters long
+            return;
+        }
+        if (!phone.trim()) {
+            Alert.alert(t('error'), t('pleaseEnterPhone'));
+            return;
+        }
+        if (!phoneRegex.test(phone)) {
+            Alert.alert(t('error'), t('phoneInvalid')); // Phone must be a valid number
+            return;
+        }
+        if (!comments.trim()) {
+            Alert.alert(t('error'), t('pleaseEnterComments'));
+            return;
+        }
+        if (!photo) {
+            Alert.alert(t('error'), t('pleaseUploadPhoto'));
+            return;
+        }
+    
         const userData = {
             name,
             telephone: phone,
             comments,
             mapCoordinates: JSON.stringify(location),
-            photo, // Base64 or URL
+            photo,
         };
-
+    
         try {
             const response = await saveUser(userData);
             console.log('User saved:', response);
@@ -89,22 +157,50 @@ const MapScreen = ({ navigation }: { navigation: any }) => {
             console.error('Error saving user:', error);
             Alert.alert(t('error'), t('failedToSave'));
         }
-    };
+    };    
 
     return (
         <View style={styles.container}>
-            <Button title={i18n.language === 'en' ? 'Ελληνικά' : 'English'} onPress={toggleLanguage} />
-            <MapView
-                style={styles.map}
-                region={region ?? undefined}
-                onRegionChangeComplete={setRegion}
-                onPress={(e) => setLocation(e.nativeEvent.coordinate)}
-            >
-                {location && <Marker coordinate={location} />}
-            </MapView>
+            {/* Language Selector */}
+            <View style={styles.languageContainer}>
+                <Text style={styles.languageText}>{t('changeLanguageTo')}:</Text>
+                <TouchableOpacity style={styles.languageButton} onPress={toggleLanguage}>
+                    <Text style={styles.languageButtonText}>
+                        {i18n.language === 'en' ? 'Ελληνικά' : 'English'}
+                    </Text>
+                </TouchableOpacity>
+            </View>
+    
+            {/* Instruction Text */}
+            <Text style={styles.instructionText}>
+                {t('selectLocation')} {/* Translate this string for i18n support */}
+            </Text>
+    
+            {/* Map */}
+            <View style={styles.mapContainer}>
+                <MapView
+                    style={styles.map}
+                    region={region ?? undefined}
+                    onRegionChangeComplete={setRegion}
+                    onPress={(e) => handleLocationSelect(e.nativeEvent.coordinate)}
+                >
+                    {location && <Marker coordinate={location} />}
+                </MapView>
+            </View>
+    
+            {/* Form Inputs */}
             <TextInput style={styles.input} placeholder={t('name')} onChangeText={setName} value={name} />
             <TextInput style={styles.input} placeholder={t('phone')} onChangeText={setPhone} value={phone} />
-            <TextInput style={styles.input} placeholder={t('comments')} onChangeText={setComments} value={comments} />
+            <TextInput
+                style={[styles.input, { height: 60 }]}
+                placeholder={t('comments')}
+                onChangeText={setComments}
+                value={comments}
+                multiline={true}
+                numberOfLines={3}
+            />
+    
+            {/* Photo Section */}
             {photo ? (
                 <View style={styles.photoContainer}>
                     <Image source={{ uri: photo }} style={styles.photo} />
@@ -113,21 +209,108 @@ const MapScreen = ({ navigation }: { navigation: any }) => {
                     </TouchableOpacity>
                 </View>
             ) : (
-                <Button title={t('uploadPhoto')} onPress={pickImage} />
+                <TouchableOpacity style={styles.uploadButton} onPress={pickImage}>
+                    <Text style={styles.uploadButtonText}>{t('uploadPhoto')}</Text>
+                </TouchableOpacity>
             )}
-            <Button title={t('submit')} onPress={handleSubmit} />
+    
+            {/* Submit Button */}
+            <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
+                <Text style={styles.submitButtonText}>{t('submit')}</Text>
+            </TouchableOpacity>
         </View>
-    );
+    );        
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1 },
-    map: { flex: 1 },
-    input: { borderWidth: 1, padding: 10, margin: 5 },
-    photoContainer: { alignItems: 'center', marginVertical: 10 },
-    photo: { width: 100, height: 100, borderRadius: 8, marginBottom: 5 },
-    removeButton: { backgroundColor: '#ff4444', padding: 5, borderRadius: 5 },
-    removeButtonText: { color: 'white', fontWeight: 'bold' },
+    container: {
+        flex: 1,
+        backgroundColor: '#f2f6f5',
+        padding: 10,
+    },
+    languageContainer: {
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+        alignItems: 'center',
+        marginBottom: 10,
+    },
+    languageText: {
+        fontSize: 14,
+        marginRight: 5,
+        color: '#0e5765',
+    },
+    languageButton: {
+        backgroundColor: '#0e5765',
+        paddingVertical: 5,
+        paddingHorizontal: 10,
+        borderRadius: 5,
+    },
+    languageButtonText: {
+        color: '#ffffff',
+        fontSize: 14,
+    },
+    mapContainer: {
+        height: 300, // Adjusted map height
+        marginBottom: 10, // Add spacing below the map
+    },
+    map: {
+        flex: 1, // Allow the map to fill the container
+        borderRadius: 5,
+    },
+    input: {
+        borderWidth: 1,
+        borderColor: '#0e5765', // Updated border color
+        padding: 10,
+        marginVertical: 5,
+        borderRadius: 5,
+    },
+    photoContainer: {
+        alignItems: 'center',
+        marginVertical: 10,
+    },
+    photo: {
+        width: 100,
+        height: 100,
+        borderRadius: 8,
+        marginBottom: 5,
+    },
+    removeButton: {
+        backgroundColor: '#ff4444',
+        padding: 5,
+        borderRadius: 5,
+    },
+    removeButtonText: {
+        color: '#ffffff',
+        fontWeight: 'bold',
+    },
+    uploadButton: {
+        backgroundColor: '#0e5765',
+        paddingVertical: 10,
+        borderRadius: 5,
+        marginVertical: 5,
+    },
+    uploadButtonText: {
+        color: '#ffffff',
+        textAlign: 'center',
+        fontWeight: 'bold',
+    },
+    submitButton: {
+        backgroundColor: '#0e5765',
+        paddingVertical: 15,
+        borderRadius: 5,
+        marginVertical: 10,
+    },
+    submitButtonText: {
+        color: '#ffffff',
+        textAlign: 'center',
+        fontWeight: 'bold',
+    },
+    instructionText: {
+        fontSize: 14,
+        color: '#0e5765',
+        textAlign: 'center',
+        marginBottom: 10,
+    },    
 });
 
 export default MapScreen;

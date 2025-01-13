@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, Text, Button, StyleSheet } from 'react-native';
+import { View, Text, Button, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTranslation } from 'react-i18next';
 import i18n from '../i18n';
@@ -12,22 +12,6 @@ const WelcomeScreen = ({ navigation }: { navigation: any }) => {
         i18n.changeLanguage(newLanguage);
     };
 
-    const checkLastVisit = async () => {
-        const lastVisit = await AsyncStorage.getItem('lastVisit');
-        const now = new Date();
-        if (lastVisit) {
-            const diff = now.getTime() - new Date(lastVisit).getTime();
-            const days = diff / (1000 * 60 * 60 * 24);
-            if (days < 30) {
-                navigation.navigate('MapScreen');
-            }
-        }
-    };
-
-    useEffect(() => {
-        checkLastVisit();
-    }, []);
-
     const handleContinue = async () => {
         await AsyncStorage.setItem('lastVisit', new Date().toISOString());
         navigation.navigate('MapScreen');
@@ -35,16 +19,74 @@ const WelcomeScreen = ({ navigation }: { navigation: any }) => {
 
     return (
         <View style={styles.container}>
-            <Button title={i18n.language === 'en' ? 'Ελληνικά' : 'English'} onPress={toggleLanguage} />
+            <View style={styles.languageContainer}>
+                <Text style={styles.languageText}>{t('changeLanguageTo')}:</Text>
+                <TouchableOpacity style={styles.languageButton} onPress={toggleLanguage}>
+                    <Text style={styles.languageButtonText}>
+                        {i18n.language === 'en' ? 'Ελληνικά' : 'English'}
+                    </Text>
+                </TouchableOpacity>
+            </View>
+            <Image source={require('../../assets/nioxoriosos_logo_transparent.png')} style={styles.logo} />
             <Text style={styles.message}>{t('welcomeMessage')}</Text>
-            <Button title={t('continue')} onPress={handleContinue} />
+            <TouchableOpacity style={styles.continueButton} onPress={handleContinue}>
+                <Text style={styles.continueButtonText}>{t('continue')}</Text>
+            </TouchableOpacity>
         </View>
     );
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-    message: { fontSize: 18, marginBottom: 20 },
+    container: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#f2f6f5',
+    },
+    languageContainer: {
+        position: 'absolute',
+        top: 10,
+        right: 10,
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    languageText: {
+        fontSize: 14,
+        marginRight: 5,
+        color: '#0e5765',
+    },
+    languageButton: {
+        backgroundColor: '#0e5765',
+        paddingVertical: 5,
+        paddingHorizontal: 10,
+        borderRadius: 5,
+    },
+    languageButtonText: {
+        color: '#ffffff',
+        fontSize: 14,
+    },
+    logo: {
+        width: 200, // Adjust width to fit your design
+        height: 200, // Adjust height proportionally
+        resizeMode: 'contain', // Ensures the logo maintains its aspect ratio
+        marginBottom: 20, // Adds spacing between the logo and welcome message
+    },
+    message: {
+        fontSize: 18,
+        marginBottom: 20,
+        color: '#0e5765',
+        textAlign: 'center',
+    },
+    continueButton: {
+        backgroundColor: '#0e5765',
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 5,
+    },
+    continueButtonText: {
+        color: '#ffffff',
+        fontSize: 16,
+    },
 });
 
 export default WelcomeScreen;

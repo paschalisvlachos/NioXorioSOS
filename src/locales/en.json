@@ -7,5 +7,19 @@
     "uploadPhoto": "Upload Photo",
     "submit": "Submit",
     "thankYou": "Thank you for your submission!",
-    "close": "Close"
+    "close": "Close",
+    "changeLanguageTo": "αλλάξτε την γλώσσα σας σε",
+    "selectLocation": "Please select the location by clicking into the map",
+    "error": "Error",
+    "outsideVillageError": "This app is implemented to work only for the Neo Chorio Village.",
+    "allFieldsRequired": "All fields are required.",
+    "pleaseSelectLocation": "Please select a location by clicking on the map.",
+    "pleaseEnterName": "Please enter your name.",
+    "pleaseEnterPhone": "Please enter your phone number.",
+    "pleaseEnterComments": "Please enter your comments.",
+    "pleaseUploadPhoto": "Please upload a photo.",
+    "failedToSave": "Failed to save your submission. Please try again.",
+    "nameInvalid": "The name must contain only letters.",
+    "nameTooShort": "The name must be at least 5 characters long.",
+    "phoneInvalid": "The phone number must contain only numbers."
 }
