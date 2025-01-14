@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 const API = axios.create({
-    baseURL: 'http://192.168.86.78:5001/api',
-    // baseURL: 'https://nioxoriosos.duckdns.org/api',
+    // baseURL: 'http://192.168.86.78:5001/api',
+    baseURL: 'https://nioxoriosos.duckdns.org/api',
     timeout: 10000, // Request timeout (10 seconds)
 });
 

@@ -24,11 +24,17 @@
         "googleMaps": {
           "apiKey": "AIzaSyDsv399jBMd579BlTpk_5-9_rN37b3YyzQ"
         }
-      }
+      },
+      "package": "com.paschalisv.NioXorioSOS"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "jsEngine": "hermes"
+    "jsEngine": "hermes",
+    "extra": {
+      "eas": {
+        "projectId": "9b5461a1-6e68-4371-9aab-e05e0ebeede9"
+      }
+    }
   }
 }
