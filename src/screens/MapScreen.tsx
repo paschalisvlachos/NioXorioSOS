@@ -1,5 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { View, TextInput, Button, StyleSheet, Alert, Image, TouchableOpacity, Text } from 'react-native';
+import {
+    View,
+    TextInput,
+    StyleSheet,
+    Alert,
+    Image,
+    TouchableOpacity,
+    Text,
+    KeyboardAvoidingView,
+    ScrollView,
+    Platform,
+} from 'react-native';
 import MapView, { Marker, Region, LatLng } from 'react-native-maps';
 import * as Location from 'expo-location';
 import * as ImagePicker from 'expo-image-picker';
@@ -56,10 +67,7 @@ const MapScreen = ({ navigation }: { navigation: any }) => {
 
                 // Validate if the location is within Neo Chorio boundaries
                 if (!isWithinBounds(coords.latitude, coords.longitude)) {
-                    Alert.alert(
-                        t('error'),
-                        t('outsideVillageError')
-                    );
+                    Alert.alert(t('error'), t('outsideVillageError'));
                     return;
                 }
 
@@ -80,10 +88,7 @@ const MapScreen = ({ navigation }: { navigation: any }) => {
 
     const handleLocationSelect = (coordinate: LatLng) => {
         if (!isWithinBounds(coordinate.latitude, coordinate.longitude)) {
-            Alert.alert(
-                t('error'),
-                t('outsideVillageError')
-            );
+            Alert.alert(t('error'), t('outsideVillageError'));
             return;
         }
         setLocation(coordinate);
@@ -91,7 +96,7 @@ const MapScreen = ({ navigation }: { navigation: any }) => {
 
     const pickImage = async () => {
         const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            mediaTypes: ['images'],
             allowsEditing: false,
             quality: 0.5,
         });
@@ -107,7 +112,7 @@ const MapScreen = ({ navigation }: { navigation: any }) => {
     const handleSubmit = async () => {
         const nameRegex = /^[A-Za-zΑ-Ωα-ωΆ-Ώά-ώ\s]+$/; // Regex for Latin, Greek letters, and spaces
         const phoneRegex = /^[0-9]+$/; // Regex for numeric values only
-    
+
         if (!location) {
             Alert.alert(t('error'), t('pleaseSelectLocation'));
             return;
@@ -140,7 +145,7 @@ const MapScreen = ({ navigation }: { navigation: any }) => {
             Alert.alert(t('error'), t('pleaseUploadPhoto'));
             return;
         }
-    
+
         const userData = {
             name,
             telephone: phone,
@@ -148,7 +153,7 @@ const MapScreen = ({ navigation }: { navigation: any }) => {
             mapCoordinates: JSON.stringify(location),
             photo,
         };
-    
+
         try {
             const response = await saveUser(userData);
             console.log('User saved:', response);
@@ -157,75 +162,87 @@ const MapScreen = ({ navigation }: { navigation: any }) => {
             console.error('Error saving user:', error);
             Alert.alert(t('error'), t('failedToSave'));
         }
-    };    
+    };
 
     return (
-        <View style={styles.container}>
-            {/* Language Selector */}
-            <View style={styles.languageContainer}>
-                <Text style={styles.languageText}>{t('changeLanguageTo')}:</Text>
-                <TouchableOpacity style={styles.languageButton} onPress={toggleLanguage}>
-                    <Text style={styles.languageButtonText}>
-                        {i18n.language === 'en' ? 'Ελληνικά' : 'English'}
-                    </Text>
-                </TouchableOpacity>
-            </View>
-    
-            {/* Instruction Text */}
-            <Text style={styles.instructionText}>
-                {t('selectLocation')} {/* Translate this string for i18n support */}
-            </Text>
-    
-            {/* Map */}
-            <View style={styles.mapContainer}>
-                <MapView
-                    style={styles.map}
-                    region={region ?? undefined}
-                    onRegionChangeComplete={setRegion}
-                    onPress={(e) => handleLocationSelect(e.nativeEvent.coordinate)}
-                >
-                    {location && <Marker coordinate={location} />}
-                </MapView>
-            </View>
-    
-            {/* Form Inputs */}
-            <TextInput style={styles.input} placeholder={t('name')} onChangeText={setName} value={name} />
-            <TextInput style={styles.input} placeholder={t('phone')} onChangeText={setPhone} value={phone} />
-            <TextInput
-                style={[styles.input, { height: 60 }]}
-                placeholder={t('comments')}
-                onChangeText={setComments}
-                value={comments}
-                multiline={true}
-                numberOfLines={3}
-            />
-    
-            {/* Photo Section */}
-            {photo ? (
-                <View style={styles.photoContainer}>
-                    <Image source={{ uri: photo }} style={styles.photo} />
-                    <TouchableOpacity onPress={handleRemovePhoto} style={styles.removeButton}>
-                        <Text style={styles.removeButtonText}>{t('removePhoto')}</Text>
+        <KeyboardAvoidingView
+            style={styles.container}
+            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        >
+            <ScrollView contentContainerStyle={styles.scrollContainer}>
+                {/* Language Selector */}
+                <View style={styles.languageContainer}>
+                    <Text style={styles.languageText}>{t('changeLanguageTo')}:</Text>
+                    <TouchableOpacity style={styles.languageButton} onPress={toggleLanguage}>
+                        <Text style={styles.languageButtonText}>
+                            {i18n.language === 'en' ? 'Ελληνικά' : 'English'}
+                        </Text>
                     </TouchableOpacity>
                 </View>
-            ) : (
-                <TouchableOpacity style={styles.uploadButton} onPress={pickImage}>
-                    <Text style={styles.uploadButtonText}>{t('uploadPhoto')}</Text>
+
+                {/* Instruction Text */}
+                <Text style={styles.instructionText}>
+                    {t('selectLocation')}
+                </Text>
+
+                {/* Map */}
+                <View style={styles.mapContainer}>
+                    <MapView
+                        style={styles.map}
+                        region={region ?? undefined}
+                        onRegionChangeComplete={setRegion}
+                        onPress={(e) => handleLocationSelect(e.nativeEvent.coordinate)}
+                    >
+                        {location && <Marker coordinate={location} />}
+                    </MapView>
+                </View>
+
+                {/* Form Inputs */}
+                <TextInput style={styles.input} placeholder={t('name')} onChangeText={setName} value={name} />
+                <TextInput
+                    style={styles.input}
+                    placeholder={t('phone')}
+                    onChangeText={(text) => setPhone(text.replace(/\s+/g, ''))}
+                    value={phone}
+                />
+                <TextInput
+                    style={[styles.input, { height: 60 }]}
+                    placeholder={t('comments')}
+                    onChangeText={setComments}
+                    value={comments}
+                    multiline
+                    numberOfLines={3}
+                />
+
+                {/* Photo Section */}
+                {photo ? (
+                    <View style={styles.photoContainer}>
+                        <Image source={{ uri: photo }} style={styles.photo} />
+                        <TouchableOpacity onPress={handleRemovePhoto} style={styles.removeButton}>
+                            <Text style={styles.removeButtonText}>{t('removePhoto')}</Text>
+                        </TouchableOpacity>
+                    </View>
+                ) : (
+                    <TouchableOpacity style={styles.uploadButton} onPress={pickImage}>
+                        <Text style={styles.uploadButtonText}>{t('uploadPhoto')}</Text>
+                    </TouchableOpacity>
+                )}
+
+                {/* Submit Button */}
+                <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
+                    <Text style={styles.submitButtonText}>{t('submit')}</Text>
                 </TouchableOpacity>
-            )}
-    
-            {/* Submit Button */}
-            <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-                <Text style={styles.submitButtonText}>{t('submit')}</Text>
-            </TouchableOpacity>
-        </View>
-    );        
+            </ScrollView>
+        </KeyboardAvoidingView>
+    );
 };
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#f2f6f5',
+    },
+    scrollContainer: {
         padding: 10,
     },
     languageContainer: {
@@ -250,7 +267,7 @@ const styles = StyleSheet.create({
         fontSize: 14,
     },
     mapContainer: {
-        height: 300, // Adjusted map height
+        height: 260, // Adjusted map height
         marginBottom: 10, // Add spacing below the map
     },
     map: {

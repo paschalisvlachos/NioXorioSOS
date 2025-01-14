@@ -1,7 +1,9 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import { Text, View, TouchableOpacity, StyleSheet } from 'react-native';
 import { I18nextProvider } from 'react-i18next';
+import { Ionicons } from '@expo/vector-icons'; // Import Ionicons
 import i18n from './src/i18n';
 import WelcomeScreen from './src/screens/WelcomeScreen';
 import MapScreen from './src/screens/MapScreen';
@@ -13,7 +15,26 @@ export default function App() {
     return (
         <I18nextProvider i18n={i18n}>
             <NavigationContainer>
-                <Stack.Navigator initialRouteName="WelcomeScreen">
+                <Stack.Navigator
+                    initialRouteName="WelcomeScreen"
+                    screenOptions={({ navigation }) => ({
+                        headerStyle: {
+                            backgroundColor: '#0e5765', // Custom background color
+                            height: 70, // Reduced height
+                        },
+                        headerLeft: () => (
+                            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+                                <Ionicons name="arrow-back" size={24} color="#ffffff" /> {/* Back icon */}
+                            </TouchableOpacity>
+                        ),
+                        headerTitle: '', // Remove page name
+                        headerRight: () => (
+                            <View style={styles.headerRight}>
+                                <Text style={styles.headerTitle}>Nio Xorio SOS</Text>
+                            </View>
+                        ),
+                    })}
+                >
                     <Stack.Screen name="WelcomeScreen" component={WelcomeScreen} />
                     <Stack.Screen name="MapScreen" component={MapScreen} />
                     <Stack.Screen name="ThankYouScreen" component={ThankYouScreen} />
@@ -22,3 +43,17 @@ export default function App() {
         </I18nextProvider>
     );
 }
+
+const styles = StyleSheet.create({
+    backButton: {
+        marginLeft: 10,
+    },
+    headerRight: {
+        marginRight: 10,
+    },
+    headerTitle: {
+        fontSize: 16,
+        color: '#ffffff',
+        fontWeight: 'bold',
+    },
+});
