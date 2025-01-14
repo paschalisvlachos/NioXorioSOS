@@ -17,19 +17,29 @@ export default function App() {
             <NavigationContainer>
                 <Stack.Navigator
                     initialRouteName="WelcomeScreen"
-                    screenOptions={({ navigation }) => ({
+                    screenOptions={({ navigation, route }) => ({
                         headerStyle: {
                             backgroundColor: '#0e5765', // Custom background color
                             height: 70, // Reduced height
                         },
-                        headerLeft: () => (
-                            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                                <Ionicons name="arrow-back" size={24} color="#ffffff" /> {/* Back icon */}
-                            </TouchableOpacity>
-                        ),
+                        headerLeft: () => {
+                            if (route.name === 'MapScreen' || route.name === 'ThankYouScreen') {
+                                return (
+                                    <TouchableOpacity
+                                        onPress={() => navigation.goBack()}
+                                        style={styles.backButton}
+                                    >
+                                        {/* Render Ionicons Back Icon */}
+                                        <Ionicons name="arrow-back" size={24} color="#ffffff" />
+                                    </TouchableOpacity>
+                                );
+                            }
+                            return null; // No back button on other screens
+                        },
                         headerTitle: '', // Remove page name
                         headerRight: () => (
                             <View style={styles.headerRight}>
+                                {/* Wrap text in <Text> */}
                                 <Text style={styles.headerTitle}>Nio Xorio SOS</Text>
                             </View>
                         ),
