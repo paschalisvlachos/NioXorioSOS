@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "NioXorioSOS",
-    "slug": "NioXorioSOS",
+    "name": "NeoChorioSOS",
+    "slug": "NeoChorioSOS",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -25,7 +25,7 @@
           "apiKey": "AIzaSyDsv399jBMd579BlTpk_5-9_rN37b3YyzQ"
         }
       },
-      "package": "com.paschalisv.NioXorioSOS"
+      "package": "com.paschalisv.NeoChorioSOS"
     },
     "web": {
       "favicon": "./assets/favicon.png"

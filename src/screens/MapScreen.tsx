@@ -28,6 +28,7 @@ const MapScreen = ({ navigation }: { navigation: any }) => {
 
     const [location, setLocation] = useState<LatLng | null>(null);
     const [region, setRegion] = useState<Region | null>(null);
+    const [mapVisible, setMapVisible] = useState(false);
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
     const [comments, setComments] = useState('');
@@ -74,8 +75,8 @@ const MapScreen = ({ navigation }: { navigation: any }) => {
                 setLocation(coords);
                 setRegion({
                     ...coords,
-                    latitudeDelta: 0.005,
-                    longitudeDelta: 0.005,
+                    latitudeDelta: 0.001,
+                    longitudeDelta: 0.001,
                 });
             } catch (error) {
                 Alert.alert(t('error'), t('failedToGetLocation'));
@@ -85,6 +86,15 @@ const MapScreen = ({ navigation }: { navigation: any }) => {
 
         getCurrentLocation();
     }, []);
+
+    const toggleMapVisibility = () => {
+        setMapVisible((prev) => !prev);
+
+        // If the map is being hidden, reset the location
+        if (mapVisible) {
+            setLocation(null);
+        }
+    };
 
     const handleLocationSelect = (coordinate: LatLng) => {
         if (!isWithinBounds(coordinate.latitude, coordinate.longitude)) {
@@ -141,17 +151,13 @@ const MapScreen = ({ navigation }: { navigation: any }) => {
             Alert.alert(t('error'), t('pleaseEnterComments'));
             return;
         }
-        if (!photo) {
-            Alert.alert(t('error'), t('pleaseUploadPhoto'));
-            return;
-        }
 
         const userData = {
             name,
             telephone: phone,
             comments,
-            mapCoordinates: JSON.stringify(location),
-            photo,
+            mapCoordinates: mapVisible ? JSON.stringify(location) : null, // Null if map is not visible
+            photo: photo || null, // Optional field
         };
 
         try {
@@ -180,22 +186,27 @@ const MapScreen = ({ navigation }: { navigation: any }) => {
                     </TouchableOpacity>
                 </View>
 
-                {/* Instruction Text */}
-                <Text style={styles.instructionText}>
-                    {t('selectLocation')}
-                </Text>
+                {/* Map Toggle Button */}
+                <TouchableOpacity style={styles.mapToggleButton} onPress={toggleMapVisibility}>
+                    <Text style={styles.mapToggleButtonText}>
+                        {mapVisible ? t('hideMap') : t('showMap')}
+                    </Text>
+                </TouchableOpacity>
 
                 {/* Map */}
+                {mapVisible && (
                 <View style={styles.mapContainer}>
                     <MapView
                         style={styles.map}
                         region={region ?? undefined}
                         onRegionChangeComplete={setRegion}
                         onPress={(e) => handleLocationSelect(e.nativeEvent.coordinate)}
+                        mapType="satellite"
                     >
                         {location && <Marker coordinate={location} />}
                     </MapView>
                 </View>
+                )}
 
                 {/* Form Inputs */}
                 <TextInput style={styles.input} placeholder={t('name')} onChangeText={setName} value={name} />
@@ -265,6 +276,17 @@ const styles = StyleSheet.create({
     languageButtonText: {
         color: '#ffffff',
         fontSize: 14,
+    },
+    mapToggleButton: {
+        backgroundColor: '#0e5765',
+        paddingVertical: 10,
+        borderRadius: 5,
+        marginVertical: 10,
+    },
+    mapToggleButtonText: {
+        color: '#ffffff',
+        textAlign: 'center',
+        fontWeight: 'bold',
     },
     mapContainer: {
         height: 260, // Adjusted map height

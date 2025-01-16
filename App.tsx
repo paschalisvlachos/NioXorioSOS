@@ -40,7 +40,7 @@ export default function App() {
                         headerRight: () => (
                             <View style={styles.headerRight}>
                                 {/* Wrap text in <Text> */}
-                                <Text style={styles.headerTitle}>Nio Xorio SOS</Text>
+                                <Text style={styles.headerTitle}>Neo Chorio SOS</Text>
                             </View>
                         ),
                     })}
