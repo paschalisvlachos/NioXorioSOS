@@ -123,10 +123,6 @@ const MapScreen = ({ navigation }: { navigation: any }) => {
         const nameRegex = /^[A-Za-zΑ-Ωα-ωΆ-Ώά-ώ\s]+$/; // Regex for Latin, Greek letters, and spaces
         const phoneRegex = /^[0-9]+$/; // Regex for numeric values only
 
-        if (!location) {
-            Alert.alert(t('error'), t('pleaseSelectLocation'));
-            return;
-        }
         if (!name.trim()) {
             Alert.alert(t('error'), t('pleaseEnterName'));
             return;
@@ -156,8 +152,8 @@ const MapScreen = ({ navigation }: { navigation: any }) => {
             name,
             telephone: phone,
             comments,
-            mapCoordinates: mapVisible ? JSON.stringify(location) : null, // Null if map is not visible
-            photo: photo || null, // Optional field
+            mapCoordinates: mapVisible ? JSON.stringify(location) : "{\"latitude\":0,\"longitude\":0}",
+            photo: photo || "null", // Optional field
         };
 
         try {
@@ -217,12 +213,12 @@ const MapScreen = ({ navigation }: { navigation: any }) => {
                     value={phone}
                 />
                 <TextInput
-                    style={[styles.input, { height: 60 }]}
+                    style={[styles.input, { height: 100 }]}
                     placeholder={t('comments')}
                     onChangeText={setComments}
                     value={comments}
                     multiline
-                    numberOfLines={3}
+                    numberOfLines={5}
                 />
 
                 {/* Photo Section */}
