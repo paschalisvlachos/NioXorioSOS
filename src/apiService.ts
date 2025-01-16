@@ -8,12 +8,24 @@ const API = axios.create({
 
 export const saveUser = async (userData: any) => {
     try {
-        // console.log('Sending data:', userData); // Log the request payload
+        console.log('Sending data:', userData); // Log the request payload
         const response = await API.post('/users', userData);
-        // console.log('Response:', response.data); // Log the response
+        console.log('Response:', response.data); // Log the response
         return response.data;
     } catch (error) {
-        console.error('Axios Error:', error); // Log the full error object
+        // Log the error details
+        if (axios.isAxiosError(error)) {
+            console.error('Axios Error:');
+            console.error(`Status Code: ${error.response?.status}`); // Log status code
+            console.error('Response Data:', error.response?.data); // Log response data
+            console.error('Headers:', error.response?.headers); // Log headers
+            console.error('Error Message:', error.message); // Log error message
+        } else {
+            // Handle non-Axios errors
+            console.error('Non-Axios Error:', error);
+        }
+        
+        // Rethrow the error to propagate it to the caller
         throw error;
     }
 };
