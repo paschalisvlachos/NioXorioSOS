@@ -28,7 +28,7 @@ const WelcomeScreen = ({ navigation }: { navigation: any }) => {
                 </TouchableOpacity>
             </View>
             <Text style={styles.message}>{t('welcomeTitle')}</Text>
-            <Image source={require('../../assets/nioxoriosos_logo_transparent.png')} style={styles.logo} />
+            <Image source={require('../../assets/neochoriosos_logo_transparent.png')} style={styles.logo} />
             <Text style={styles.message}>{t('welcomeMessage')}</Text>
             <TouchableOpacity style={styles.continueButton} onPress={handleContinue}>
                 <Text style={styles.continueButtonText}>{t('continue')}</Text>

@@ -25,7 +25,7 @@ const ThankYouScreen = ({ navigation }: { navigation: any }) => {
 
             {/* Logo */}
             <Image
-                source={require('../../assets/nioxoriosos_logo_transparent.png')}
+                source={require('../../assets/neochoriosos_logo_transparent.png')}
                 style={styles.logo}
             />
 
