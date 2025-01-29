@@ -120,19 +120,19 @@ const MapScreen = ({ navigation }: { navigation: any }) => {
     };
 
     const handleSubmit = async () => {
-        const nameRegex = /^[A-Za-zΑ-Ωα-ωΆ-Ώά-ώ\s]+$/; // Regex for Latin, Greek letters, and spaces
-        const phoneRegex = /^[0-9]+$/; // Regex for numeric values only
-
+        const nameRegex = /^[A-Za-zΑ-Ωα-ωΆ-Ώά-ώ\s]+$/;
+        const phoneRegex = /^[0-9]+$/;
+    
         if (!name.trim()) {
             Alert.alert(t('error'), t('pleaseEnterName'));
             return;
         }
         if (!nameRegex.test(name)) {
-            Alert.alert(t('error'), t('nameInvalid')); // Name must contain only letters
+            Alert.alert(t('error'), t('nameInvalid'));
             return;
         }
         if (name.length < 5) {
-            Alert.alert(t('error'), t('nameTooShort')); // Name must be at least 5 characters long
+            Alert.alert(t('error'), t('nameTooShort'));
             return;
         }
         if (!phone.trim()) {
@@ -140,31 +140,44 @@ const MapScreen = ({ navigation }: { navigation: any }) => {
             return;
         }
         if (!phoneRegex.test(phone)) {
-            Alert.alert(t('error'), t('phoneInvalid')); // Phone must be a valid number
+            Alert.alert(t('error'), t('phoneInvalid'));
             return;
         }
         if (!comments.trim()) {
             Alert.alert(t('error'), t('pleaseEnterComments'));
             return;
         }
-
-        const userData = {
-            name,
-            telephone: phone,
-            comments,
-            mapCoordinates: mapVisible ? JSON.stringify(location) : "{\"latitude\":0,\"longitude\":0}",
-            photo: photo || "null", // Optional field
-        };
-
+    
+        const formData = new FormData();
+        formData.append('name', name);
+        formData.append('telephone', phone);
+        formData.append('comments', comments);
+        formData.append('mapCoordinates', mapVisible ? JSON.stringify(location) : "{\"latitude\":0,\"longitude\":0}");
+    
+        if (photo) {
+            const localUri = photo;
+            const filename = localUri.split('/').pop();
+            const match = /\.(\w+)$/.exec(filename || '');
+            const type = match ? `image/${match[1]}` : `image/jpeg`;
+    
+            formData.append('photo', {
+                uri: localUri,
+                name: filename,
+                type: type,
+            } as any); // `as any` is used to avoid TypeScript complaints
+        }
+    
         try {
-            const response = await saveUser(userData);
+            console.log('Sending data:', formData);
+            const response = await saveUser(formData);
             console.log('User saved:', response);
             navigation.navigate('ThankYouScreen');
         } catch (error) {
             console.error('Error saving user:', error);
             Alert.alert(t('error'), t('failedToSave'));
         }
-    };
+    };    
+    
 
     return (
         <KeyboardAvoidingView

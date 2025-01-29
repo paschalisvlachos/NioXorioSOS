@@ -5,6 +5,8 @@ const cors = require('cors');
 
 const app = express();
 
+app.use('/uploads', express.static('uploads'));
+
 // Middleware
 app.use(bodyParser.json());
 app.use(cors());

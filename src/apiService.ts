@@ -3,14 +3,18 @@ import axios from 'axios';
 const API = axios.create({
     // baseURL: 'http://192.168.86.78:5001/api',
     baseURL: 'https://neochoriosos.duckdns.org/api',
-    // timeout: 10000, // Request timeout (10 seconds)
+    timeout: 10000, // Request timeout (10 seconds)
 });
 
 export const saveUser = async (userData: any) => {
     try {
-        // console.log('Sending data:', userData); // Log the request payload
-        const response = await API.post('/users', userData);
-        // console.log('Response:', response.data); // Log the response
+         console.log('Sending data:', userData); // Log the request payload
+        const response = await API.post('/users', userData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+         console.log('Response:', response.data); // Log the response
         return response.data;
     } catch (error) {
         console.error('Axios Error:', error); // Log the full error object
