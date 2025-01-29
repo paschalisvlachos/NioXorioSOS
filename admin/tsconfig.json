@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+      "jsx": "react-jsx", // Use "react-jsx" for React 17+ or "react" for earlier versions
+      "esModuleInterop": true, // Allows default imports for React
+      "moduleResolution": "node",
+      "allowSyntheticDefaultImports": true,
+      "target": "es5",
+      "lib": ["dom", "es2015"]
+    },
+    "include": ["src"]
+}
+  
