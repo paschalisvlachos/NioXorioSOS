@@ -12,7 +12,7 @@ app.use(bodyParser.json());
 app.use(cors());
 
 // Connect to MongoDB
-mongoose.connect('mongodb://127.0.0.1:27017/NeoChorioSOS')
+mongoose.connect('mongodb://admin:!P@sch@l1s!@127.0.0.1:27017/NeoChorioSOS?authSource=admin')
 .then(() => console.log('MongoDB Connected'))
 .catch((err) => console.log(err));
 
