@@ -55,6 +55,7 @@ router.get('/users', async (req, res) => {
         const users = await User.find({ isRemoved: { $ne: true } });
         res.status(200).json(users);
     } catch (err) {
+        console.error('MongoDB Query Error:', err);
         res.status(500).json({ error: 'Failed to fetch users' });
     }
 });
