@@ -1,12 +1,7 @@
 {
   "cli": {
     "version": ">= 14.4.0",
-    "appVersionSource": "remote",
-    "extra": {
-      "eas": {
-        "projectId": "NeoChorioSOS"
-      }
-    }
+    "appVersionSource": "remote"
   },
   "build": {
     "development": {
